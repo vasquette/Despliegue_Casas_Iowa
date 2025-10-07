@@ -1,0 +1,10 @@
+pandas
+joblib
+scikit-learn
+openpyxl
+streamlit
+scikit-learn
+pandas
+numpy
+joblib
+pickle-mixin
