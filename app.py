@@ -122,31 +122,266 @@ def get_input_data_from_widgets():
         'ScreenPorch': 0, 'PoolArea': 0, 'MiscVal': 0, 'MoSold': 6, 'YrSold': 2008
     }
 
+    # Define descriptions for each feature
+    feature_descriptions = {
+        'MSSubClass': 'Identifies the type of dwelling involved in the sale.',
+        'MSZoning': 'Identifies the general zoning classification of the sale.',
+        'LotFrontage': 'Linear feet of street connected to property.',
+        'LotArea': 'Lot size in square feet.',
+        'Street': 'Type of road access to property.',
+        'Alley': 'Type of alley access to property.',
+        'LotShape': 'General shape of property.',
+        'LandContour': 'Flatness of the property.',
+        'Utilities': 'Type of utilities available.',
+        'LotConfig': 'Lot configuration.',
+        'LandSlope': 'Slope of property.',
+        'Neighborhood': 'Physical locations within Ames city limits.',
+        'Condition1': 'Proximity to main road or railroad.',
+        'Condition2': 'Proximity to main road or railroad (if a second is present).',
+        'BldgType': 'Type of dwelling.',
+        'HouseStyle': 'Style of dwelling.',
+        'OverallQual': 'Rates the overall material and finish of the house.',
+        'OverallCond': 'Rates the overall condition of the house.',
+        'YearBuilt': 'Original construction date.',
+        'YearRemodAdd': 'Remodel date (same as construction date if no remodel or addition).',
+        'RoofStyle': 'Type of roof.',
+        'RoofMatl': 'Roofing material.',
+        'Exterior1st': 'Exterior covering on house.',
+        'Exterior2nd': 'Exterior covering on house (if more than one material).',
+        'MasVnrType': 'Masonry veneer type.',
+        'MasVnrArea': 'Masonry veneer area in square feet.',
+        'ExterQual': 'Evaluates the quality of the material on the exterior.',
+        'ExterCond': 'Evaluates the present condition of the material on the exterior.',
+        'Foundation': 'Type of foundation.',
+        'BsmtQual': 'Evaluates the height of the basement.',
+        'BsmtCond': 'Evaluates the general condition of the basement.',
+        'BsmtExposure': 'Refers to walkout or garden level walls.',
+        'BsmtFinType1': 'Rating of basement finished area (Type 1).',
+        'BsmtFinSF1': 'Type 1 finished square feet.',
+        'BsmtFinType2': 'Rating of basement finished area (Type 2).',
+        'BsmtFinSF2': 'Type 2 finished square feet.',
+        'BsmtUnfSF': 'Unfinished square feet of basement area.',
+        'TotalBsmtSF': 'Total square feet of basement area.',
+        'Heating': 'Type of heating.',
+        'HeatingQC': 'Heating quality and condition.',
+        'CentralAir': 'Central air conditioning.',
+        'Electrical': 'Electrical system.',
+        '1stFlrSF': 'First Floor square feet.',
+        '2ndFlrSF': 'Second floor square feet.',
+        'LowQualFinSF': 'Low quality finished square feet (all floors).',
+        'GrLivArea': 'Above grade (ground) living area square feet.',
+        'BsmtFullBath': 'Basement full bathrooms.',
+        'BsmtHalfBath': 'Basement half bathrooms.',
+        'FullBath': 'Full bathrooms above grade.',
+        'HalfBath': 'Half baths above grade.',
+        'BedroomAbvGr': 'Bedrooms above grade (does not include basement bedrooms).',
+        'KitchenAbvGr': 'Kitchens above grade.',
+        'KitchenQual': 'Kitchen quality.',
+        'TotRmsAbvGrd': 'Total rooms above grade (does not include basement bathrooms).',
+        'Functional': 'Home functionality (assume typical unless otherwise noted).',
+        'Fireplaces': 'Number of fireplaces.',
+        'FireplaceQu': 'Fireplace quality.',
+        'GarageType': 'Garage location.',
+        'GarageYrBlt': 'Year garage was built.',
+        'GarageFinish': 'Interior finish of the garage.',
+        'GarageCars': 'Size of garage in car capacity.',
+        'GarageArea': 'Size of garage in square feet.',
+        'PavedDrive': 'Paved driveway.',
+        'WoodDeckSF': 'Wood deck area in square feet.',
+        'OpenPorchSF': 'Open porch area in square feet.',
+        'EnclosedPorch': 'Enclosed porch area in square feet.',
+        '3SsnPorch': 'Three season porch area in square feet.',
+        'ScreenPorch': 'Screen porch area in square feet.',
+        'PoolArea': 'Pool area in square feet.',
+        'PoolQC': 'Pool quality.',
+        'Fence': 'Fence quality.',
+        'MiscFeature': 'Miscellaneous feature not covered in other categories.',
+        'MiscVal': 'Value of miscellaneous feature.',
+        'MoSold': 'Month Sold (MM).',
+        'YrSold': 'Year Sold (YYYY).',
+        'SaleType': 'Type of sale.',
+        'SaleCondition': 'Condition of sale.'
+    }
 
-    # Generate widgets based on defined options and defaults
-    for col in cols_for_widgets:
-        widget_key = col
-        widget_keys.add(widget_key)
 
-        if col in categorical_options:
-            options = categorical_options[col]
-            # Determine default index (try to find 'None' or first option if nan is not an option)
-            try:
-                 default_index = options.index('None') if 'None' in options else (options.index(np.nan) if np.nan in options else 0)
-            except ValueError:
-                 default_index = 0 # Default to first option if None or nan not found
+    # --- Organize Widgets into Sections ---
 
-            input_data[widget_key] = st.sidebar.selectbox(col, options=options, index=default_index, key=widget_key)
-        elif col in numerical_defaults:
-            default_value = numerical_defaults[col]
-            if isinstance(default_value, int):
-                 input_data[widget_key] = st.sidebar.number_input(col, min_value=0, value=default_value, step=1, key=widget_key)
-            else: # Assume float
-                 input_data[widget_key] = st.sidebar.number_input(col, min_value=0.0, value=default_value, step=10.0, key=widget_key)
-        else:
-            # Fallback for any other columns (e.g., boolean or less common types)
-            st.sidebar.warning(f"No specific widget defined for column: {col}. Using text input as fallback.")
-            input_data[widget_key] = st.sidebar.text_input(col, key=widget_key)
+    # General Property Characteristics
+    st.sidebar.subheader('General Property Characteristics')
+    col = 'MSSubClass'
+    input_data[col] = st.sidebar.selectbox(col, options=[20, 30, 40, 45, 50, 60, 70, 75, 80, 85, 90, 120, 150, 160, 180, 190], index=0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'MSZoning'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('RL'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'LotFrontage'
+    input_data[col] = st.sidebar.number_input(col, min_value=0.0, value=70.0, step=1.0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'LotArea'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=10500, step=100, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Street'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Pave'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Alley'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index(np.nan) if np.nan in categorical_options[col] else 0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'LotShape'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Reg'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'LandContour'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Lvl'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Utilities'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('AllPub'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'LotConfig'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Inside'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'LandSlope'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Gtl'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Neighborhood'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('NAmes'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Condition1'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Norm'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Condition2'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Norm'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'BldgType'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('1Fam'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'HouseStyle'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('1Story'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+
+    # Quality and Condition
+    st.sidebar.subheader('Quality and Condition')
+    col = 'OverallQual'
+    input_data[col] = st.sidebar.slider(col, 1, 10, 5, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'OverallCond'
+    input_data[col] = st.sidebar.slider(col, 1, 9, 5, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'ExterQual'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('TA'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'ExterCond'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('TA'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'HeatingQC'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Ex'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'KitchenQual'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('TA'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Functional'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Typ'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+
+
+    # Construction and Remodeling
+    st.sidebar.subheader('Construction and Remodeling')
+    col = 'YearBuilt'
+    input_data[col] = st.sidebar.number_input(col, min_value=1800, value=1980, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'YearRemodAdd'
+    input_data[col] = st.sidebar.number_input(col, min_value=1800, value=1980, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'RoofStyle'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Gable'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'RoofMatl'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('CompShg'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Exterior1st'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('VinylSd'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Exterior2nd'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('VinylSd'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'MasVnrType'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('None') if 'None' in categorical_options[col] else 0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'MasVnrArea'
+    input_data[col] = st.sidebar.number_input(col, min_value=0.0, value=0.0, step=10.0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Foundation'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('PConc'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+
+
+    # Basement Features
+    st.sidebar.subheader('Basement Features')
+    col = 'BsmtQual'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('TA'), key=col, help=feature_descriptions.get(col, 'No description available.')) # Use index for 'TA'
+    col = 'BsmtCond'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('TA'), key=col, help=feature_descriptions.get(col, 'No description available.')) # Use index for 'TA'
+    col = 'BsmtExposure'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('No'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'BsmtFinType1'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Unf'), key=col, help=feature_descriptions.get(col, 'No description available.')) # Use index for 'Unf'
+    col = 'BsmtFinSF1'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=500, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'BsmtFinType2'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Unf'), key=col, help=feature_descriptions.get(col, 'No description available.')) # Use index for 'Unf'
+    col = 'BsmtFinSF2'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'BsmtUnfSF'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=500, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'TotalBsmtSF'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=1000, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'BsmtFullBath'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'BsmtHalfBath'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+
+
+    # Above Ground Features
+    st.sidebar.subheader('Above Ground Features')
+    col = '1stFlrSF'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=1000, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = '2ndFlrSF'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'LowQualFinSF'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'GrLivArea'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=1000, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'FullBath'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=1, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'HalfBath'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'BedroomAbvGr'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=3, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'KitchenAbvGr'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=1, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'TotRmsAbvGrd'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=5, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Fireplaces'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'FireplaceQu'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index(np.nan) if np.nan in categorical_options[col] else 0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+
+    # Garage Features
+    st.sidebar.subheader('Garage Features')
+    col = 'GarageType'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Attchd') if 'Attchd' in categorical_options[col] else 0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'GarageYrBlt'
+    input_data[col] = st.sidebar.number_input(col, min_value=1800.0, value=1980.0, step=1.0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'GarageFinish'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Unf') if 'Unf' in categorical_options[col] else 0, key=col, help=feature_descriptions.get(col, 'No description available.')) # Use index for 'Unf'
+    col = 'GarageCars'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=1, step=1, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'GarageArea'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=300, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'PavedDrive'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Y'), key=col, help=feature_descriptions.get(col, 'No description available.'))
+
+
+    # Outdoor Features
+    st.sidebar.subheader('Outdoor Features')
+    col = 'WoodDeckSF'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'OpenPorchSF'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'EnclosedPorch'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = '3SsnPorch'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'ScreenPorch'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'PoolArea'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'PoolQC'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index(np.nan) if np.nan in categorical_options[col] else 0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'Fence'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index(np.nan) if np.nan in categorical_options[col] else 0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'MiscFeature'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index(np.nan) if np.nan in categorical_options[col] else 0, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'MiscVal'
+    input_data[col] = st.sidebar.number_input(col, min_value=0, value=0, step=10, key=col, help=feature_descriptions.get(col, 'No description available.'))
+
+
+    # Sale Information
+    st.sidebar.subheader('Sale Information')
+    col = 'MoSold'
+    input_data[col] = st.sidebar.slider(col, 1, 12, 6, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'YrSold'
+    input_data[col] = st.sidebar.slider(col, 2006, 2010, 2008, key=col, help=feature_descriptions.get(col, 'No description available.'))
+    col = 'SaleType'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('WD'), key=col, help=feature_descriptions.get(col, 'No description available.')) # Use index for 'WD'
+    col = 'SaleCondition'
+    input_data[col] = st.sidebar.selectbox(col, options=categorical_options[col], index=categorical_options[col].index('Normal'), key=col, help=feature_descriptions.get(col, 'No description available.')) # Use index for 'Normal'
 
 
     # Id is not a Streamlit widget and does not require a key.
@@ -175,7 +410,10 @@ def preprocess_input(input_df):
         'PavedDrive', 'SaleType', 'SaleCondition', 'Street', 'Alley', 'Utilities',
         'LandSlope', 'Condition2', 'RoofStyle', 'RoofMatl', 'Exterior2nd', 'MasVnrType',
         'FireplaceQu', 'PoolQC', 'Fence', 'MiscFeature', 'GarageYrBlt', 'MiscVal',
-        'MoSold', 'YrSold' # Numerical columns used later
+        'MoSold', 'YrSold', # Numerical columns used later
+        'BsmtFinSF2', 'BsmtUnfSF', '1stFlrSF', '2ndFlrSF', 'LowQualFinSF',
+        'BedroomAbvGr', 'KitchenAbvGr', 'TotRmsAbvGrd', 'EnclosedPorch',
+        '3SsnPorch', 'ScreenPorch', 'PoolArea', 'LotFrontage' # Added more numerical columns
     ]
 
 
@@ -207,11 +445,18 @@ def preprocess_input(input_df):
              try:
                  # Ensure the column is of object or category dtype before attempting cat.codes
                  if not pd.api.types.is_object_dtype(df_processed[col]) and not pd.api.types.is_categorical_dtype(df_processed[col]):
-                     df_processed[col] = df_processed[col].astype(str).replace('nan', np.nan) # Convert 'nan' string back to NaN before astype
+                      # Convert to string, handle NaN representations like 'nan'
+                     df_processed[col] = df_processed[col].astype(str).replace('nan', np.nan)
+
 
                  # Handle unseen labels: convert to CategoricalDtype with known categories
                  # Fill NaNs before converting to categorical to avoid them being treated as a new category
-                 df_processed[col] = df_processed[col].fillna('Missing').astype(pd.CategoricalDtype(categories=list(encoder.classes_) + ['Missing']))
+                 # Ensure 'Missing' is in categories if filling NaNs with 'Missing'
+                 known_categories = list(encoder.classes_)
+                 if 'Missing' not in known_categories:
+                      known_categories.append('Missing')
+
+                 df_processed[col] = df_processed[col].fillna('Missing').astype(pd.CategoricalDtype(categories=known_categories))
                  df_processed[col] = df_processed[col].cat.codes
                  df_processed[col] = df_processed[col].replace(-1, np.nan) # Convert -1 from cat.codes (unseen) to NaN
                  df_processed[col] = df_processed[col].fillna(0) # Fill NaNs resulting from unseen/missing
@@ -233,80 +478,69 @@ def preprocess_input(input_df):
 
     # 3. Apply One-Hot Encoding (Dynamically determine columns from encoder)
     ohe_cols_to_transform = []
-    if models_loaded and hasattr(onehot_encoder, 'feature_names_in_') and onehot_encoder.feature_names_in_ is not None:
-        # Extract original column names from encoder's feature_names_in_
-        # These names have the format 'original_col__category'
-        ohe_cols_expected_by_encoder = [col.split('__')[0] for col in onehot_encoder.get_feature_names_out()] # Use get_feature_names_out to get resulting names
-        # Get unique original column names while preserving order
-        unique_ohe_original_cols_expected = []
-        for col in ohe_cols_expected_by_encoder:
-            if col not in unique_ohe_original_cols_expected:
-                unique_ohe_original_cols_expected.append(col)
+    unique_ohe_original_cols_expected = []
 
-        ohe_cols_to_transform = [col for col in unique_ohe_original_cols_expected if col in df_processed.columns]
-        st.write(f"OHE columns expected by encoder (inferred from get_feature_names_out): {unique_ohe_original_cols_expected}")
-        st.write(f"OHE columns found in input DF for transformation: {ohe_cols_to_transform}")
+    if models_loaded and hasattr(onehot_encoder, 'get_feature_names_out'):
+        try:
+            # Extract original column names from encoder's transformed feature names
+            # Example: 'MSZoning__RL' -> 'MSZoning'
+            ohe_transformed_feature_names = onehot_encoder.get_feature_names_out()
 
-        # Verify that all expected OHE columns are present in the input DataFrame
-        if len(ohe_cols_to_transform) != len(unique_ohe_original_cols_expected):
-            missing_cols = set(unique_ohe_original_cols_expected) - set(ohe_cols_to_transform)
-            st.error(f"Preprocessing error: Input DataFrame is missing expected categorical columns for One-Hot Encoding: {missing_cols}")
-            st.write(f"Expected OHE original columns: {unique_ohe_original_cols_expected}")
-            st.write(f"Available columns in input DF: {df_processed.columns.tolist()}")
-            return None # Indicate failure if columns are missing
+            # Get unique original column names while preserving the order implied by get_feature_names_out
+            for transformed_name in ohe_transformed_feature_names:
+                # Split by '__' and take the first part
+                original_col = transformed_name.split('__')[0]
+                if original_col not in unique_ohe_original_cols_expected:
+                    unique_ohe_original_cols_expected.append(original_col)
+
+            # Filter the input DataFrame to keep *only* these identified original columns and ensure they are in the correct order.
+            ohe_cols_to_transform = [col for col in unique_ohe_original_cols_expected if col in df_processed.columns]
+
+            # Verify that all expected OHE original columns are present in the input DataFrame
+            if len(ohe_cols_to_transform) != len(unique_ohe_original_cols_expected):
+                missing_cols = set(unique_ohe_original_cols_expected) - set(ohe_cols_to_transform)
+                # st.error(f"Preprocessing error: Input DataFrame is missing expected categorical columns for One-Hot Encoding: {missing_cols}")
+                # st.write(f"Expected OHE original columns: {unique_ohe_original_cols_expected}")
+                # st.write(f"Available columns in input DF: {df_processed.columns.tolist()}")
+                # Instead of failing immediately, try to proceed by dropping missing columns,
+                # but log an error, as this indicates a data mismatch.
+                st.error(f"Warning: Input DataFrame is missing {len(missing_cols)} columns expected by the One-Hot Encoder: {missing_cols}. These will be skipped.")
+                ohe_cols_to_transform = [col for col in unique_ohe_original_cols_expected if col in df_processed.columns] # Re-filter to be safe
 
 
-    elif models_loaded and hasattr(onehot_encoder, 'categories_'):
-         st.warning("OneHotEncoder does not have 'feature_names_in_'. Attempting to infer columns from categories_ structure.")
-         # If feature_names_in_ is not available, try to use categories_ length
-         # This is less reliable as it doesn't give original column names
-         # Based on the user's previous output, there are 19 category sets.
-         # Let's assume the 19 columns are the initial ones from a typical list.
-         # This is a fallback and might require manual adjustment if it fails.
-         try:
-             # This is a fragile assumption based on previous error output and common dataset knowledge
-             ohe_cols_to_transform = [
-                'MSZoning', 'LotShape', 'LandContour', 'LotConfig', 'Neighborhood',
-                'Condition1', 'BldgType', 'HouseStyle', 'Exterior1st', 'Exterior2nd',
-                'MasVnrType', 'Foundation', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2',
-                'CentralAir', 'Electrical', 'GarageType', 'SaleType' # Assuming these 19
-             ]
-             ohe_cols_to_transform = [col for col in ohe_cols_to_transform if col in df_processed.columns]
-             if len(ohe_cols_to_transform) != len(onehot_encoder.categories_):
-                 st.error(f"Preprocessing error: Number of columns ({len(ohe_cols_to_transform)}) inferred for OHE does not match the number of categories sets in the encoder ({len(onehot_encoder.categories_)}). Check the list of OHE_EXPECTED_COLS_FROM_ENCODER.")
-                 return None # Indicate failure
+            # st.write(f"OHE columns expected by encoder (inferred from get_feature_names_out): {unique_ohe_original_cols_expected}")
+            # st.write(f"OHE columns found in input DF for transformation: {ohe_cols_to_transform}")
 
-             st.write(f"OHE columns inferred from categories_ (length {len(ohe_cols_to_transform)}): {ohe_cols_to_transform}")
-
-         except Exception as e:
-             st.error(f"Could not infer expected OHE columns from encoder.categories_: {e}. Cannot proceed with OHE.")
-             return None # Indicate failure
+        except Exception as e:
+            st.error(f"Could not determine expected OHE columns from the encoder using get_feature_names_out: {e}. Cannot proceed with OHE.")
+            return None # Indicate failure
 
     else:
-        st.error("Could not determine expected OHE columns from the encoder. Cannot proceed with OHE.")
+        st.error("Could not determine expected OHE columns from the encoder (get_feature_names_out not available). Cannot proceed with OHE.")
         return None # Indicate failure
 
 
     if ohe_cols_to_transform:
         # Ensure the columns are in the correct order for transformation
+        # Use .reindex to ensure correct order and fill missing columns with NaN if they were unexpectedly absent
         df_processed_ohe_subset = df_processed[ohe_cols_to_transform].copy()
 
-        st.write(f"Columns being passed to OneHotEncoder: {df_processed_ohe_subset.columns.tolist()}")
-        st.write(f"Data types of columns being passed to OneHotEncoder: {df_processed_ohe_subset.dtypes}")
-        st.write(f"Sample data for OHE columns:\n{df_processed_ohe_subset.head()}")
-        if models_loaded and hasattr(onehot_encoder, 'categories_'):
-            st.write(f"Encoder's categories structure (length {len(onehot_encoder.categories_)}):")
-            # Match category index to column name based on ohe_cols_to_transform
-            for i, cats in enumerate(onehot_encoder.categories_):
-                col_name = ohe_cols_to_transform[i] if i < len(ohe_cols_to_transform) else f"Unknown_col_{i}"
-                st.write(f"  Column '{col_name}' (Index {i}): {list(cats)}")
+        # st.write(f"Columns being passed to OneHotEncoder: {df_processed_ohe_subset.columns.tolist()}")
+        # st.write(f"Data types of columns being passed to OneHotEncoder: {df_processed_ohe_subset.dtypes}")
+        # st.write(f"Sample data for OHE columns:\n{df_processed_ohe_subset.head()}")
+        # if models_loaded and hasattr(onehot_encoder, 'categories_'):
+        #     st.write(f"Encoder's categories structure (length {len(onehot_encoder.categories_)}):")
+        #     # Match category index to column name based on ohe_cols_to_transform
+        #     for i, cats in enumerate(onehot_encoder.categories_):
+        #         col_name = ohe_cols_to_transform[i] if i < len(ohe_cols_to_transform) else f"Unknown_col_{i}"
+        #         st.write(f"  Column '{col_name}' (Index {i}): {list(cats)}")
 
 
         try:
             # Ensure handle_unknown='ignore' is set for the onehot_encoder
             if hasattr(onehot_encoder, 'handle_unknown'):
                  onehot_encoder.handle_unknown = 'ignore'
-                 st.write("OneHotEncoder handle_unknown is set to 'ignore'.")
+                 # st.write("OneHotEncoder handle_unknown is set to 'ignore'.")
             else:
                 st.warning("OneHotEncoder does not support handle_unknown='ignore'. Manual handling of unseen categories is crucial.")
 
@@ -316,15 +550,31 @@ def preprocess_input(input_df):
                  if col in df_processed_ohe_subset.columns:
                      # Convert any non-string/non-NaN values to string, handle NaNs
                      df_processed_ohe_subset[col] = df_processed_ohe_subset[col].apply(lambda x: str(x) if pd.notna(x) else np.nan)
-                     # Fill remaining NaNs with a placeholder if 'nan' is not an expected category
+                     # Fill remaining NaNs with a placeholder string if 'nan' is not an expected category
                      if df_processed_ohe_subset[col].isnull().any():
                          # Try to get categories for this column from the encoder to see if 'nan' is expected
-                         col_index_in_encoder = ohe_cols_to_transform.index(col) # Use index in the current subset
-                         encoder_categories_for_col = [str(cat) for cat in onehot_encoder.categories_[col_index_in_encoder] if pd.notna(cat)]
-                         if 'nan' not in encoder_categories_for_col:
-                             df_processed_ohe_subset[col] = df_processed_ohe_subset[col].fillna('Missing') # Use 'Missing' as a consistent placeholder
-                         else:
-                              df_processed_ohe_subset[col] = df_processed_ohe_subset[col].fillna('nan') # Fill with 'nan' string if encoder expects it
+                         # This requires mapping the current column index to the encoder's categories_ index
+                         # which can be tricky if columns were dropped. A safer approach is to
+                         # check if 'nan' (as string) is in the encoder's final feature names for this column.
+
+                         # Let's find the index of this original column within the expected OHE columns list
+                         try:
+                             col_original_index = unique_ohe_original_cols_expected.index(col)
+                             # Check if 'nan' is among the categories for this original column in the encoder
+                             if col_original_index < len(onehot_encoder.categories_):
+                                 encoder_cats_for_col = [str(cat) for cat in onehot_encoder.categories_[col_original_index] if pd.notna(cat)]
+                                 if 'nan' not in encoder_cats_for_col:
+                                      df_processed_ohe_subset[col] = df_processed_ohe_subset[col].fillna('Missing') # Fill with a placeholder if 'nan' not expected
+                                 else:
+                                      df_processed_ohe_subset[col] = df_processed_ohe_subset[col].fillna('nan') # Fill with 'nan' string if encoder expects it
+                             else:
+                                  # Fallback if column index mapping is problematic
+                                 df_processed_ohe_subset[col] = df_processed_ohe_subset[col].fillna('Missing') # Default to placeholder
+
+
+                         except ValueError:
+                             # Fallback if column not found in the expected list (shouldn't happen with current logic but for safety)
+                             df_processed_ohe_subset[col] = df_processed_ohe_subset[col].fillna('Missing') # Default to placeholder
 
 
             # Apply One-Hot Encoding using the aligned and prepared DataFrame subset
@@ -347,6 +597,7 @@ def preprocess_input(input_df):
         except Exception as e:
              st.error(f"Could not apply One-Hot Encoding: {e}")
              # If OHE fails, drop original categorical columns to avoid errors later
+             # Use the original list of columns attempted for OHE transform
              for col in ohe_cols_to_transform:
                  if col in df_processed.columns and not pd.api.types.is_numeric_dtype(df_processed[col]):
                       df_processed = df_processed.drop(columns=col)
@@ -354,13 +605,20 @@ def preprocess_input(input_df):
 
 
     # 4. Scale numerical columns (ensure columns exist and handle NaNs)
-    # Update numerical columns list to potentially include columns previously OHE but now handled differently
-    numerical_cols_to_scale = ['OverallQual', 'OverallCond','LotArea', 'YearBuilt', 'YearRemodAdd', 'MasVnrArea', 'BsmtFinSF1', 'TotalBsmtSF', 'GrLivArea', 'WoodDeckSF', 'OpenPorchSF', 'GarageYrBlt', 'GarageCars', 'GarageArea', 'BsmtFinSF2', 'BsmtUnfSF', '1stFlrSF', '2ndFlrSF', 'LowQualFinSF', 'BsmtFullBath', 'BsmtHalfBath', 'FullBath', 'HalfBath', 'BedroomAbvGr', 'KitchenAbvGr', 'TotRmsAbvGrd', 'Fireplaces', 'EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea', 'MiscVal', 'MoSold', 'YrSold', 'LotFrontage'] # Added more numerical columns
-    # Add columns that were label encoded to the list of numerical columns to fillna and scale
-    label_encode_cols = ['ExterQual', 'ExterCond', 'BsmtQual', 'BsmtCond', 'HeatingQC', 'KitchenQual', 'Functional', 'GarageFinish'] # Redefine for clarity
-    all_numeric_cols = list(set(numerical_cols_to_scale + label_encode_cols)) # Combine lists and remove duplicates
+    # Update numerical columns list to include all columns that should be treated as numerical
+    all_potential_numerical_cols = [
+        'LotArea', 'OverallQual', 'OverallCond', 'YearBuilt', 'YearRemodAdd', 'MasVnrArea',
+        'BsmtFinSF1', 'TotalBsmtSF', 'GrLivArea', 'BsmtFullBath', 'FullBath', 'HalfBath',
+        'Fireplaces', 'GarageCars', 'WoodDeckSF', 'OpenPorchSF', 'GarageYrBlt', 'MiscVal',
+        'MoSold', 'YrSold', 'BsmtFinSF2', 'BsmtUnfSF', '1stFlrSF', '2ndFlrSF',
+        'LowQualFinSF', 'BedroomAbvGr', 'KitchenAbvGr', 'TotRmsAbvGrd', 'EnclosedPorch',
+        '3SsnPorch', 'ScreenPorch', 'PoolArea', 'LotFrontage'
+    ]
+    # Add columns that were label encoded (which are now numeric)
+    label_encode_cols = ['ExterQual', 'ExterCond', 'BsmtQual', 'BsmtCond', 'HeatingQC', 'KitchenQual', 'Functional', 'GarageFinish']
+    all_numeric_cols_for_scaling = list(set(all_potential_numerical_cols + label_encode_cols)) # Combine and get unique
 
-    scale_cols_in_df = [col for col in all_numeric_cols if col in df_processed.columns and pd.api.types.is_numeric_dtype(df_processed[col])]
+    scale_cols_in_df = [col for col in all_numeric_cols_for_scaling if col in df_processed.columns and pd.api.types.is_numeric_dtype(df_processed[col])]
 
     if scale_cols_in_df:
         df_processed[scale_cols_in_df] = df_processed[scale_cols_in_df].fillna(0) # Fill NaNs before scaling
@@ -371,7 +629,7 @@ def preprocess_input(input_df):
 
 
     # 5. Align columns with expected features for PCA
-    if EXPECTED_FEATURES_AFTER_PREPROCESSING is not None and len(EXPECTED_FEATURES_AFTER_PREPROCESSING) > 0:
+    if models_loaded and EXPECTED_FEATURES_AFTER_PREPROCESSING is not None and len(EXPECTED_FEATURES_AFTER_PREPROCESSING) > 0:
         expected_features = EXPECTED_FEATURES_AFTER_PREPROCESSING
 
         # Create a new DataFrame with the expected columns and order, filling missing with 0
@@ -388,7 +646,7 @@ def preprocess_input(input_df):
                      try:
                          df_aligned[col] = pd.to_numeric(df_processed[col])
                      except ValueError:
-                         st.warning(f"Column '{col}' could not be converted to numeric during final alignment. Filling with 0.")
+                         # st.warning(f"Column '{col}' could not be converted to numeric during final alignment. Filling with 0.")
                          df_aligned[col] = 0
 
 
@@ -400,17 +658,17 @@ def preprocess_input(input_df):
                      df_aligned[col] = pd.to_numeric(df_aligned[col], errors='coerce')
                      df_aligned[col] = df_aligned[col].fillna(0)
                  except ValueError:
-                     st.warning(f"Column '{col}' is not numeric and could not be converted in final check. It will be dropped for PCA.")
+                     # st.warning(f"Column '{col}' is not numeric and could not be converted in final check. It will be dropped for PCA.")
                      df_aligned = df_aligned.drop(columns=col)
              else:
                  df_aligned[col] = df_aligned[col].fillna(0)
 
         # Debugging checks before PCA
-        st.write("Columns in df_aligned before PCA:", df_aligned.columns.tolist())
-        st.write("Shape of df_aligned before PCA:", df_aligned.shape)
-        if hasattr(pca_model, 'feature_names_in_'):
-             st.write("Expected features for PCA (from pca_model.feature_names_in_):", list(pca_model.feature_names_in_))
-             st.write("Expected features for PCA (shape):", pca_model.feature_names_in_.shape)
+        # st.write("Columns in df_aligned before PCA:", df_aligned.columns.tolist())
+        # st.write("Shape of df_aligned before PCA:", df_aligned.shape)
+        # if hasattr(pca_model, 'feature_names_in_'):
+        #      st.write("Expected features for PCA (from pca_model.feature_names_in_):", list(pca_model.feature_names_in_))
+        #      st.write("Expected features for PCA (shape):", pca_model.feature_names_in_.shape)
 
 
         # Final check: ensure number of columns matches expected features for PCA
@@ -420,8 +678,8 @@ def preprocess_input(input_df):
                  # Optionally print column differences for debugging
                  missing_from_expected_pca = set(EXPECTED_FEATURES_AFTER_PREPROCESSING) - set(df_aligned.columns)
                  extra_in_aligned = set(df_aligned.columns) - set(EXPECTED_FEATURES_AFTER_PREPROCESSING)
-                 st.write(f"Features expected by PCA but missing from aligned DF: {missing_from_expected_pca}")
-                 st.write(f"Extra features in aligned DF not expected by PCA: {extra_in_aligned}")
+                 # st.write(f"Features expected by PCA but missing from aligned DF: {missing_from_expected_pca}")
+                 # st.write(f"Extra features in aligned DF not expected by PCA: {extra_in_aligned}")
                  return None
 
         # Check if there are any non-finite values and report
@@ -462,15 +720,15 @@ def preprocess_input(input_df):
 
 # --- User Interface with Streamlit ---
 st.title("Iowa House Price Prediction")
+st.write("Adjust the house characteristics in the sidebar to get a price prediction.")
 
-st.write("This application predicts house prices based on their characteristics. Enter the characteristic values below to get a prediction.")
 
 # Use the function that generates widgets to get the input data
 input_df = get_input_data_from_widgets()
 
 # --- Make Predictions ---
 if input_df is not None and models_loaded:
-    st.write("Preprocessing data and making predictions...")
+    # st.write("Preprocessing data and making predictions...") # Removed debug print
 
     try:
         processed_df = preprocess_input(input_df)
@@ -482,12 +740,13 @@ if input_df is not None and models_loaded:
             if hasattr(loaded_model, 'n_features_in_'):
                 if processed_df.shape[1] != loaded_model.n_features_in_:
                     st.error(f"The number of features after final preprocessing ({processed_df.shape[1]}) does not match the number expected by the model ({loaded_model.n_features_in_}). Prediction could not be made.")
-                    st.write("Features expected by the model:", loaded_model.feature_names_in_)
-                    st.write("Features after final preprocessing:", processed_df.columns.tolist())
+                    # st.write("Features expected by the model:", loaded_model.feature_names_in_) # Removed debug print
+                    # st.write("Features after final preprocessing:", processed_df.columns.tolist()) # Removed debug print
 
                 else:
                     predictions = loaded_model.predict(processed_df)
                     st.subheader("Predicted House Value:")
+                    # Format prediction as currency with commas
                     st.success(f"The predicted value of the house is: ${predictions[0]:,.2f}")
 
             else:
@@ -495,16 +754,19 @@ if input_df is not None and models_loaded:
                  try:
                      predictions = loaded_model.predict(processed_df)
                      st.subheader("Predicted House Value:")
-                     st.success(f"El valor predicho de la casa es: ${predictions[0]:,.2f}")
+                     # Format prediction as currency with commas
+                     st.success(f"The predicted value of the house is: ${predictions[0]:,.2f}")
 
                  except Exception as e:
                      st.error(f"Error making predictions: {e}")
 
         else:
-            st.warning("Could not load the model or preprocess the data to make predictions.")
+            # st.warning("Could not load the model or preprocess the data to make predictions.") # Removed debug print
+            pass # Keep silent if preprocessing/model loading failed, error message is already shown
 
     except Exception as e:
         st.error(f"An error occurred during preprocessing or prediction: {e}")
 
 elif not models_loaded:
-    st.warning("Models and preprocessors were not loaded correctly. Cannot make predictions.")
+    # st.warning("Models and preprocessors were not loaded correctly. Cannot make predictions.") # Removed debug print
+    pass # Keep silent if model loading failed, error message is already shown
