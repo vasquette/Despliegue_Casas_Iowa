@@ -407,11 +407,15 @@ def preprocess_input(input_df):
             for col in ohe_cols_in_df:
                 if col in df_processed.columns:
                     # Get the first valid category from the encoder's classes, default to a placeholder if none
-                    # Ensure we don't use 'Missing' if it was a placeholder before
-                    encoder_categories = [cat for cat in onehot_encoder.categories_[categorical_cols_ohe.index(col)] if isinstance(cat, str) and cat != 'Missing']
+                    # Ensure we exclude problematic categories like 'C (all)' and 'Missing' if they exist in encoder categories
+                    encoder_categories = [cat for cat in onehot_encoder.categories_[categorical_cols_ohe.index(col)] if isinstance(cat, str) and cat not in ['Missing', 'C (all)']]
                     fill_value = encoder_categories[0] if encoder_categories else 'UnknownCategory' # Use a distinct placeholder
 
-                    df_processed[col] = df_processed[col].fillna(fill_value).astype(str) # Fill NaN and ensure string type
+                    # Replace problematic values ('C (all)') with the fill value before filling NaNs
+                    if 'C (all)' in df_processed[col].unique():
+                         df_processed[col] = df_processed[col].replace('C (all)', fill_value)
+
+                    df_processed[col] = df_processed[col].fillna(fill_value).astype(str) # Fill remaining NaN and ensure string type
 
 
             # Apply One-Hot Encoding - Use handle_unknown='ignore' if the encoder supports it
